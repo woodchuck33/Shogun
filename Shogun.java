@@ -106,7 +106,7 @@ public class Shogun
 				for (int width = 0; width < BOARD_WIDTH; width++)
 				{
 					// Mini-Samurai
-					if (board[length][width]==16)
+					if (board[length][width]==1)
 					{
 						// If there is no piece in front (board[length-1][]) of the Mini-Samurai, it's possible to move forward one space
 						// Mini-Samurai must also not be in board[0][] row
@@ -144,6 +144,16 @@ public class Shogun
 						// Mini-Ninja must not be board[BOARD_LENGTH-1][] or board[][0]
 						if (length<BOARD_LENGTH-1 && width>0 && board[length][width-1]<0 && board[length+1][width+1]==0)
 							moves.append((char)(width+'A')).append(length+1).append((char)(width-1+'A')).append(length+2+" ");
+					}
+					// Samurai
+					else if (board[length][width]==3) 
+					{
+						// Samurai can move forward (length--) until there is a piece in front of it or it reaches board[0][]
+						for ()
+
+
+						// Samurai can move to the right (width++) iff there is is a piece in the next row (board[length-1][])
+						// Samurai must not be in board[][BOARD_WIDTH-1]
 					}
 				}
 			}
