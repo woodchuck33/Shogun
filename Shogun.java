@@ -106,7 +106,7 @@ public class Shogun
 				for (int width = 0; width < BOARD_WIDTH; width++)
 				{
 					// Mini-Samurai
-					if (board[length][width]==16)
+					if (board[length][width]==1)
 					{
 						// If there is no piece in front (board[length-1][]) of the Mini-Samurai, it's possible to move forward one space
 						// Mini-Samurai must also not be in board[0][] row
@@ -144,6 +144,58 @@ public class Shogun
 						// Mini-Ninja must not be board[BOARD_LENGTH-1][] or board[][0]
 						if (length<BOARD_LENGTH-1 && width>0 && board[length][width-1]<0 && board[length+1][width+1]==0)
 							moves.append((char)(width+'A')).append(length+1).append((char)(width-1+'A')).append(length+2+" ");
+					}
+					// Samurai
+					else if (length>0 && board[length][width]==3)
+					{
+						// Use a for loop to search for possible moves
+						// Samurai can move directly forward until it runs into another piece or the end of the board. 
+						// Can only move horizontally to attack
+						for (int forward = length-1; forward>=0; forward--)
+						{
+							if (board[forward][width]==0)
+							{
+								moves.append((char)(width+'A')).append(length+1).append((char)(width+'A')).append(forward+1+" ");
+							}else forward = -1;
+						}
+						// Now checking for horizontal moves to the left
+						// Note that Samurai must not be in board[][0]
+						if (width>0)
+						{
+							for (int left = width-1; left>=0; left--)
+							{
+								// If there is nothing in the square to the left of the ninja, we can then check the square in front of it
+								if (board[length][left]==0)
+								{
+									// If there is an enemy in the square in front of the open square, then the open square becomes a possible move
+									if (board[length+1][left]<0)
+									{
+										moves.append((char)(width+'A')).append(length+1).append((char)(left+'A')).append(length+1+" ");
+									}
+								}else left = -1; // If the square to the left is blocked, there is no need to check further
+							}
+						}
+						// Now checking for horizontal moves to the right
+						// Note that Samurai must not be in board[][BOARD_WIDTH-1]
+						if (width<BOARD_WIDTH-1)
+						{
+							for (int right = width + 1; width <BOARD_WIDTH; width++)
+							{
+								// If there is nothing in the square to the right of the ninja we can then check the square in front of it
+								if (board[length][right]==0)
+								{
+									// If there is an enemy in the square in front of the open square, the open square becomes a possible move
+									if (board[length+1][right]<0)
+									{
+										moves.append((char)(width+'A')).append(length+1).append((char)(right+'A')).append(length+1+" ");
+									}
+								}else right = -1; // If the square to the right is blocked, there is no need to check further
+							}
+						}
+					}
+					// Ninja
+					{
+						
 					}
 				}
 			}
