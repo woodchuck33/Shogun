@@ -177,7 +177,7 @@ public class Shogun
 								if (gBoard[length][left]==0)
 								{
 									// If there is an enemy in the square in front of the open square, then the open square becomes a possible move
-									if (gBoard[length+1][left]<0)
+									if (gBoard[length-1][left]<0)
 									{
 										gMoves[gMIndex++] = (width*1000) + (length*100) + (left*10) + (length);
 									}
@@ -188,13 +188,13 @@ public class Shogun
 						// Note that Samurai must not be in gBoard[][BOARD_WIDTH-1]
 						if (width<BOARD_WIDTH-1)
 						{
-							for (int right = width + 1; width <BOARD_WIDTH; width++)
+							for (int right = width + 1; right <BOARD_WIDTH; right++)
 							{
 								// If there is nothing in the square to the right of the ninja we can then check the square in front of it
 								if (gBoard[length][right]==0)
 								{
 									// If there is an enemy in the square in front of the open square, the open square becomes a possible move
-									if (gBoard[length+1][right]<0)
+									if (gBoard[length-1][right]<0)
 									{
 										gMoves[gMIndex++] = (width*1000) + (length*100) + (right*10) + (length);
 									}
@@ -203,8 +203,70 @@ public class Shogun
 						}
 					}
 					// Ninja
+					else if(gBoard[length][width]==4)
 					{
-						
+						for (int forward = length-1; forward>=0; forward--)
+						{
+							for (int right = width + 1; right <BOARD_WIDTH; right++)
+							{
+								if (gBoard[forward][right]==0)
+								{
+									gMoves[gMIndex++] = (width*1000) + (length*100) + (right*10) + (forward);
+								}else 
+								{
+									forward = -1; // Stop search because Ninja can't jump other pieces
+									right = BOARD_WIDTH;
+								}
+							}
+						}
+						for (int forward = length-1; forward>=0; forward--)
+						{
+							for (int left = width - 1; left>=0; left--)
+							{
+								if (gBoard[forward][left]==0)
+								{
+									gMoves[gMIndex++] = (width*1000) + (length*100) + (left*10) + (forward);
+								}else
+								{
+									forward = -1; // Stop search because Ninja can't jump other pieces
+									left = -1;
+								}
+
+						}
+						for (int back = length + 1; back < BOARD_LENGTH; back++)
+						{
+							for (int right = width + 1; right < BOARD_WIDTH; right++)
+							{
+								if (gBoard[back][right]==0) 
+								{
+									if (gBoard[back-1][right]<0)
+									{
+										gMoves[gMIndex++] = (width*1000) + (length*100) + (right*10) + (back);
+									}
+								}else 
+								{	
+									right = BOARD_WIDTH;
+									back = BOARD_LENGTH;
+								}
+							}
+						}
+						for (int back = length + 1; back < BOARD_LENGTH; back++)
+						{
+							for (int left = width - 1; left>=0; left--)
+							{
+								if (gBoard[back][left]==0 
+								{
+									if (gBoard[back-1][left]<0)
+									{
+										gMoves[gMIndex++] = (width*1000) + (length*100) + (left*10) + (back);
+									}
+								}else 
+								{
+									left = -1;
+									back = BOARD_LENGTH;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -225,17 +287,17 @@ public class Shogun
 						// If there is no piece in front (gBoard[length+1][]) of the Mini-Samurai, it's possible to move forward one space
 						// Mini-Samurai must also not be in (gBoard[BOARD_LENGTH-1][])
 						if (length<BOARD_LENGTH-1 && gBoard[length+1][width]==0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width+'A')).append(length+2+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10) + (length+1);
 						// If there is an enemy piece to the left (gBoard[][width-1]) AND forward (gBoard[length+1][]) of the Mini-Samurai 
 						// AND there is no piece directly to the left (gBoard[length][width-1])...
 						// Mini-Samurai must not be in gBoard[][0]
 						if (width>0 && gBoard[length][width-1]==0 && gBoard[length+1][width-1]>0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width-1+'A')).append(length+1+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10-1) + (length);
 						// If there is an enemy piece to the right AND forward (gBoard[length+1][width+1]) of the Mini-Samurai 
 						// AND there is no piece directly to the right (gBoard[length][width+1])...
 						// Mini-Samurai must not be in gBoard[][BOARD_WIDTH-1]
 						if (width<BOARD_WIDTH-1 && gBoard[length][width+1]==0 && gBoard[length+1][width+1]>0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width+1+'A')).append(length+1+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10+1) + (length);
 					}
 					// Mini-Ninja
 					else if (gBoard[length][width]==-2)
@@ -243,21 +305,21 @@ public class Shogun
 						// If there is no piece diagonally forward to the right (gBoard[length+1][width+1]) of Mini-Ninja...
 						// Mini-Ninja must not be gBoard[BOARD_LENGTH-1][] or gBoard[][BOARD_WIDTH-1]
 						if (length<BOARD_LENGTH-1 && width<BOARD_WIDTH-1 && gBoard[length+1][width+1]==0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width+1+'A')).append(length+2+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10+1) + (length+1);
 						// If there is no piece diagonally forward to the left (gBoard[length+1][width-1]) of Mini-Ninja...
 						// Mini-Ninja must not be gBoard[BOARD_LENGTH-1][] or gBoard[][0]
 						if (length<BOARD_LENGTH-1 && width>0 && gBoard[length+1][width-1]==0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width-1+'A')).append(length+2+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10-1) + (length+1);
 						// If there is an enemy piece to the right (gBoard[length][width+1]) with no piece behind it (gBoard[length-1][width+1]), 
 						// Mini-Ninja can move there to attack
 						// Mini-Ninja must not be gBoard[0][] or gBoard[][BOARD_WIDTH-1]
 						if (length>0 && width<BOARD_WIDTH-1 && gBoard[length][width+1]<0 && gBoard[length-1][width+1]==0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width+1+'A')).append(length+" ");
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10+1) + (length-1);
 						// If there is an enemy piece to the left (gBoard[length][width-1]) with no piece behind (gBoard[length-1][width-1]) it, 
 						// Mini-Ninja can move there to attack
 						// Mini-Ninja must not be gBoard[0][] or gBoard[][0]
-						if (length>0 && width>0 && gBoard[length][width-1]<0 && gBoard[length+1][width+1]==0)
-							moves.append((char)(width+'A')).append(length+1).append((char)(width-1+'A')).append(length+2+" ");
+						if (length>0 && width>0 && gBoard[length][width-1]<0 && gBoard[length-1][width-1]==0)
+							gMoves[gMIndex++] = (width*1000) + (length*100) + (width*10-1) + (length-1);
 					}
 				}
 			}
