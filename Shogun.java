@@ -59,10 +59,12 @@ public class Shogun
     					for (i = 0; i < gMIndex; i++)
     					{
     						move = gMoves[i];
-    						System.out.print("" + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " ");
+    						System.out.print(move + "=" + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " ");
     					}
+    					System.out.println();
     					String codedMove = kb.next();
-    					move = (1000*(int)(Character.toUpperCase(codedMove.charAt(0))-'A')) + (100*(int)(codedMove.charAt(1)-'0')) + (10*(int)(Character.toUpperCase(codedMove.charAt(2))-'A')) + (int)(codedMove.charAt(3)-'0');
+    					move = (1000*(int)(Character.toUpperCase(codedMove.charAt(0))-'A')) + (100*(int)(codedMove.charAt(1)-'1')) + (10*(int)(Character.toUpperCase(codedMove.charAt(2))-'A')) + (int)(codedMove.charAt(3)-'1');
+    					System.out.println("Converted Move " + move);
     					i = 0;
     					for (i = 0; i < gMIndex; i++)
     					{
@@ -83,6 +85,8 @@ public class Shogun
     			newLength = (move%100)/10;
     			newWidth = (move%10);
     			// Make the actual move
+    			System.out.printf("Old Length: %d\nOld Width: %d\nNew Length: %d\nNew Width: %d\n", oldLength, oldWidth, newLength, newWidth);
+    			System.out.printf("Value of old location: %d", gBoard[oldLength][oldWidth]);
     			gBoard[newLength][newWidth] = gBoard[oldLength][oldWidth];
     			gBoard[oldLength][oldWidth] = 0;
     			// It's an attack move if the piece in front of where the move lands is an enemy
@@ -438,6 +442,7 @@ public class Shogun
 							forward++;
 						}
 						// Checking the forward left (gBoard[length--][width--]) directions for possible moves
+						forward = length+1;
 						for (int left = width - 1; left>=0 && forward<BOARD_LENGTH; left--)
 						{
 							if (gBoard[forward][left]==0)
@@ -477,7 +482,7 @@ public class Shogun
 							if (gBoard[back][left]==0)
 							{
 								// Checking if gBoard[back][left] is an attacking position
-								if (gBoard[back+1][left]<0)
+								if (gBoard[back+1][left]>0)
 								{
 									gMoves[gMIndex++] = (width*1000) + (length*100) + (left*10) + (back);
 								}
