@@ -80,10 +80,10 @@ public class Shogun
                     gMIndex = 0;
     			}
     			// Decyphering 4 digit move
-    			oldLength = (move/1000);
-    			oldWidth = (move%1000)/100;
-    			newLength = (move%100)/10;
-    			newWidth = (move%10);
+    			oldLength = (move%1000)/100;
+    			oldWidth = (move/1000);
+    			newLength = (move%10);
+    			newWidth = (move%100)/10;
     			// Make the actual move
     			System.out.printf("Old Length: %d\nOld Width: %d\nNew Length: %d\nNew Width: %d\n", oldLength, oldWidth, newLength, newWidth);
     			System.out.printf("Value of old location: %d", gBoard[oldLength][oldWidth]);
@@ -100,6 +100,7 @@ public class Shogun
     			}
             }
 			displayBoard();
+			compTurn = !compTurn;
 			if (gameOver())
 				play = false;
 		}
@@ -529,16 +530,16 @@ public class Shogun
 			// Get the move
 			move = gMoves[moveIndex];
 			// Decyphering 4 digit move
-			oldLength = (move/1000);
-			oldWidth = (move%1000)/100;
-			newLength = (move%100)/10;
-			newWidth = (move%10);
+			oldLength = (move%1000)/100;(move/1000);
+			oldWidth = (move/1000);
+			newLength = (move%10);
+			newWidth = (move%100)/10;
 			// Make the actual move
 			gBoard[newLength][newWidth] = gBoard[oldLength][oldWidth];
 			gBoard[oldLength][oldWidth] = 0;
 			// It's an attack move if the piece in front of where the move lands is an enemy
 			// Decrement the piece, increment the attack flag
-			if (gBoard[newLength-1][newWidth] < 0)
+			if (newLength>0 && gBoard[newLength-1][newWidth] < 0)
 			{
 				gBoard[newLength-1][newWidth]++;
 				decrementFlag++;
