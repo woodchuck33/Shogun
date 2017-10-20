@@ -9,7 +9,7 @@ public class Shogun
 	// Minimax constanst
 	private static final int EVAL_ENDING_COMP = 999;
 	private static final int EVAL_ENDING_HUM = -999;
-	private static final int MAX_DEPTH = 7;
+	private static final int MAX_DEPTH = 3;
 	
 	// Board size constants
 	private static final int BOARD_LENGTH=8;
@@ -530,7 +530,7 @@ public class Shogun
 			// Get the move
 			move = gMoves[moveIndex];
 			// Decyphering 4 digit move
-			oldLength = (move%1000)/100;(move/1000);
+			oldLength = (move%1000)/100;
 			oldWidth = (move/1000);
 			newLength = (move%10);
 			newWidth = (move%100)/10;
@@ -587,16 +587,16 @@ public class Shogun
 				// Get the move
 				move = gMoves[humanIndex];
 				// Decyphering 4 digit move
-				oldLength = (move/1000);
-				oldWidth = (move%1000)/100;
-				newLength = (move%100)/10;
-				newWidth = (move%10);
+				oldLength = (move%1000)/100;
+				oldWidth = (move/1000);
+				newLength = (move%10);
+				newWidth = (move%100)/10;
 				// Make the actual move
 				gBoard[newLength][newWidth] = gBoard[oldLength][oldWidth];
 				gBoard[oldLength][oldWidth] = 0;
 				// It's an attack move if the piece in front of where the move lands is an enemy
 				// Decrement the piece, increment the attack flag
-				if (gBoard[newLength+1][newWidth] > 0)
+				if (newLength<BOARD_LENGTH-1 && gBoard[newLength+1][newWidth] > 0)
 				{
 					gBoard[newLength+1][newWidth]--;
 					decrementFlag++;
@@ -615,6 +615,7 @@ public class Shogun
 		}
 	}
 	
+   // Max is computer's move
 	public static int max(int depth)
 	{
 		if (gameOver())
@@ -637,21 +638,30 @@ public class Shogun
 				// Get the move
 				move = gMoves[compIndex];
 				// Decyphering 4 digit move
-				oldLength = (move/1000);
-				oldWidth = (move%1000)/100;
-				newLength = (move%100)/10;
-				newWidth = (move%10);
+				oldLength = (move%1000)/100;
+				oldWidth = (move/1000);
+				newLength = (move%10);
+				newWidth = (move%100)/10;
 				// Make the actual move
 				gBoard[newLength][newWidth] = gBoard[oldLength][oldWidth];
 				gBoard[oldLength][oldWidth] = 0;
 				// It's an attack move if the piece in front of where the move lands is an enemy
 				// Decrement the piece, increment the attack flag
-				if (gBoard[newLength-1][newWidth] < 0)
-				{
-					gBoard[newLength-1][newWidth]++;
-					decrementFlag++;
-				}
-				moveScore = max(depth+1);
+				try{
+               if (newLength>0 && gBoard[newLength-1][newWidth] < 0)
+   				{
+   					gBoard[newLength-1][newWidth]++;
+   					decrementFlag++;
+   				}
+            }catch(ArrayIndexOutOfBoundsException e)
+            {
+               displayBoard();
+               for (int i = 0; i<gMIndex; i++)
+               {
+                  System.out.print(gMoves[i] + " ");
+               }
+            }
+				moveScore = min(depth+1);
 				if (moveScore<bestScore)
 					bestScore = moveScore;
 				// Retract move
