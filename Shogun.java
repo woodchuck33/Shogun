@@ -1,6 +1,12 @@
 /* Author:	Joe Ezaki
    CSc 180
-   */
+   Dr. Gordon
+   Project 2
+
+	Shogun.java is a program that plays the made-up board game called Hi-Ya!
+Play is pretty straightforward as the user will be prompted with all of their
+possible moves.
+*/
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -23,6 +29,8 @@ public class Shogun
 	private static int humanKillerMove;
 	private static int compKillerMove;
 	private static int[] historyTable = new int[8787];
+	private static int pruned;
+	private static int totalNodes;
 	
 	public static void main(String[] args)
 	{
@@ -52,7 +60,8 @@ public class Shogun
     				long start = System.currentTimeMillis();
     				move = miniMax();
     				System.out.println("Total search time: " + ((System.currentTimeMillis()-start)*.001));
-    				System.out.print("My move is: " + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " \n");
+    				System.out.print("My move is: " + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " ");
+    				System.out.print("(" + (char)(Math.abs((move/1000)-6)+'A') + (Math.abs((move%1000/100)-8)) + (char)(Math.abs((move%100/10)-6)+'A') + (Math.abs((move%10)-8)) + ")\n");
     			}
     			// Human player's turn
     			else
@@ -65,12 +74,11 @@ public class Shogun
     					for (i = 0; i < gMIndex; i++)
     					{
     						move = gMoves[i];
-    						System.out.print(move + "=" + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " ");
+    						System.out.print("" + (char)((move/1000)+'A') + ((move%1000/100)+1) + (char)((move%100/10)+'A') + ((move%10)+1) + " ");
     					}
     					System.out.println();
     					String codedMove = kb.next();
     					move = (1000*(int)(Character.toUpperCase(codedMove.charAt(0))-'A')) + (100*(int)(codedMove.charAt(1)-'1')) + (10*(int)(Character.toUpperCase(codedMove.charAt(2))-'A')) + (int)(codedMove.charAt(3)-'1');
-    					System.out.println("Converted Move " + move);
     					i = 0;
     					for (i = 0; i < gMIndex; i++)
     					{
@@ -84,7 +92,7 @@ public class Shogun
     						System.out.println("That's not a legal move.  Try again.");
     				}
                     gMIndex = 0;
-    			}
+    			} // End player's turn
     			// Decyphering 4 digit move
     			oldLength = (move%1000)/100;
     			oldWidth = (move/1000);
@@ -100,17 +108,26 @@ public class Shogun
     				gBoard[newLength+1][newWidth] = Math.max(gBoard[newLength+1][newWidth]-2, 0);
     			}
     			// Computer's attack
-    			else if(newLength > 0 && gBoard[newLength-1][newWidth] < 0 && gBoard[newLength-1][newWidth] != -5)
+    			else if(compTurn && newLength > 0 && gBoard[newLength-1][newWidth] < 0 && gBoard[newLength-1][newWidth] != -5)
     			{
     				gBoard[newLength-1][newWidth] = Math.min(gBoard[newLength-1][newWidth]+2, 0);
     				System.out.println("Hi-Ya!");
     			}
-            }
+            } // End if(gMoves[gMIndex]==-1)
 			displayBoard();
-			compTurn = !compTurn;
 			if (gameOver())
+			{
 				play = false;
-		}
+				if (compTurn)
+				{
+					System.out.println("Computer Wins!");
+				}else
+				{
+					System.out.println("You win!");
+				}
+			}
+			compTurn = !compTurn;
+		} // End play loop
 	}
 
 
@@ -138,16 +155,20 @@ public class Shogun
 
 	public static void displayBoard()
 	{
+		System.out.println("\nPiece Definitions:");
+		System.out.println("K = +/-5\tJ = +/-4\nS = +/-3\tj = +/-2\ns = +/-1");
+		System.out.println("   ------------------- Computer");
 		// Prints from gBoard[7][0] to gBoard[0][6]
 		for (int length = BOARD_LENGTH-1; length>=0; length--)
 		{
-			System.out.print (length);
+			System.out.print (length+1);
 			for (int width = 0; width<BOARD_WIDTH; width++)
 			{
 				System.out.printf("%3d", gBoard[length][width]);
 			}
 			System.out.println();
 		}
+		System.out.println("   ------------------- Human");
 		System.out.println("   A  B  C  D  E  F  G");
 	}
 
@@ -530,7 +551,6 @@ public class Shogun
 			result = true;
 		}else if (gMoves[gMIndex]==-1)
 		{
-			System.out.println ("negative");
 			result = true;
 		}
 		return result;
@@ -546,6 +566,8 @@ public class Shogun
 		int bestScore = -9999;
 		int stop = gMIndex;
 		sort (0, gMIndex, true);
+		totalNodes = gMIndex;
+		pruned = 0;
 		for (int moveIndex = 0; moveIndex < stop; moveIndex++)
 		{
 			// Get the move
@@ -586,6 +608,9 @@ public class Shogun
 					moveIndex = stop;
 			}
 		}
+		System.out.println ("Total nodes = " + totalNodes);
+		System.out.println ("Total prunes = " + pruned);
+		System.out.println ("Pruned percentage = " + ((double)pruned/totalNodes));
 		// Resetting the move index
 		gMIndex = 0;
 		return bestMove;
@@ -609,6 +634,7 @@ public class Shogun
             int humanStartIndex = gMIndex;
 			getMoves(false);
 			int humanStopIndex = gMIndex;
+			totalNodes += (humanStopIndex-humanStartIndex);
 			sort(humanStartIndex, humanStopIndex, false);
 			int bestScore = 9999;
 			for (;humanIndex<humanStopIndex; humanIndex++)
@@ -639,7 +665,7 @@ public class Shogun
 					// Alpha-Beta Pruning
 					if (bestScore<max)
 					{
-						System.out.println("Pruned " + (humanStopIndex-humanIndex));
+						pruned += (humanStopIndex-humanIndex);
 						humanIndex = humanStopIndex;
 						humanKillerMove = move;
 						historyTable[move]++;
@@ -676,6 +702,7 @@ public class Shogun
             int compStartIndex = gMIndex;
 			getMoves(true);
 			int compStopIndex = gMIndex;
+			totalNodes += (compStopIndex - compStartIndex);
 			sort(compStartIndex, compStopIndex, true);
 			int bestScore = -9999;
 			for (;compIndex<compStopIndex; compIndex++)
@@ -716,7 +743,7 @@ public class Shogun
 					// Alpha-Beta Pruning
 					if (bestScore>min)
 					{
-						System.out.println("Pruned " + (compStopIndex-compIndex));
+						pruned += (compStopIndex-compIndex);
 						compIndex = compStopIndex;
 						compKillerMove = move;
 						historyTable[move]++;
