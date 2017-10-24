@@ -57,6 +57,8 @@ int minMiniMax(int depth, int max);
 int maxMiniMax(int depth, int min);
 int eval();
 void sort(int start, int stop, bool compTurn);
+void quicksort(int start, int stop);
+int partition(int start, int stop);
 
 int main()
 {
@@ -838,13 +840,6 @@ void sort(int start, int stop, bool compTurn)
 				gMoves[move] = temp;
 				move = stop;
 			}
-
-			/*else if (historyTable[gMoves[move]]>0)
-			{
-				int temp = gMoves[start];
-				gMoves[start++] = gMoves[move];
-				gMoves[move] = temp;
-			}*/
 		}
 	}else
 	{
@@ -859,4 +854,39 @@ void sort(int start, int stop, bool compTurn)
 			}
 		}
 	}
+	quicksort(start, stop-1);
+}
+
+void quicksort(int start, int stop)
+{
+	if (start<stop)
+	{
+		int pi = partition(start, stop);
+
+		quicksort(start, pi-1);
+		quicksort(pi+1, stop);
+	}
+}
+
+int partition(int start, int stop)
+{
+	int pivot = historyTable[gMoves[stop]];
+	int i = (start-1);
+	int t;
+
+	for(int j = start; j<=stop-1; j++)
+	{
+		if (historyTable[gMoves[j]]<=pivot)
+		{
+			i++;
+			t = gMoves[i];
+			gMoves[i] = gMoves[j];
+			gMoves[j] = t;
+		}
+	}
+
+	t = gMoves[i+1];
+	gMoves[i+1] = gMoves[stop];
+	gMoves[stop] = t;
+	return (i+1);
 }
