@@ -15,7 +15,7 @@ Author: Joe Ezaki
 // Minimax constants
 #define EVAL_ENDING_COMP 999
 #define EVAL_ENDING_HUM -999
-#define MAX_DEPTH 10
+#define MAX_DEPTH 9
 
 // Board size constants
 #define BOARD_LENGTH 8
